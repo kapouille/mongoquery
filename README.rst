@@ -14,7 +14,6 @@ Query syntax
 The syntax of queries matches closely the one of
 `MongoDB queries <http://docs.mongodb.org/manual/tutorial/query-documents/>`_,
 and translates it to python using the following rules:
-
     - operators and field identifiers are expressed as strings. For instance,
       the following MongoDB query:
 
@@ -63,6 +62,7 @@ and translates it to python using the following rules:
         {a: {$exists: true}, b: null}
 
       Translates to the following Python dict:
+
       .. code-block:: python
 
         {"a": {"$exists": True}, "b": None}
