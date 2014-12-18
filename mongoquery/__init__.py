@@ -5,6 +5,7 @@ import types
 class QueryError(Exception):
     pass
 
+
 class Query(object):
     def __init__(self, definition):
         self._definition = definition
@@ -23,7 +24,6 @@ class Query(object):
                 return condition in entry
             else:
                 return condition == entry
-
 
     def _extract(self, entry, path):
         if not path:
@@ -55,14 +55,19 @@ class Query(object):
 
             return self._match(condition, extracted_data)
 
-    def _elemMatch(self, condition, entry):
-        return any(
-            all(
-                self._process_condition(sub_operator, sub_condition, element)
-                for sub_operator, sub_condition in condition.items()
-            )
-            for element in entry
-        )
+    ##################
+    # Common operators
+    ##################
+
+    def _not_implemented(self, *args):
+        raise NotImplementedError
+
+    def _noop(self, *args):
+        return True
+
+    ######################
+    # Comparison operators
+    ######################
 
     def _gt(self, condition, entry):
         return entry > condition
@@ -85,10 +90,52 @@ class Query(object):
     def _nin(self, condition, entry):
         return entry not in condition
 
-    def _not_implemented(self, *args):
-        raise NotImplementedError
+    ###################
+    # Logical operators
+    ###################
 
-    _options = _text = _not_implemented
+    def _and(self, condition, entry):
+        if type(condition) == list:
+            return all(
+                self._match(sub_condition, entry)
+                for sub_condition in condition
+            )
+        raise QueryError(
+            "$and has been attributed incorrect argument {!r}".format(
+                condition
+            )
+        )
+
+    def _nor(self, condition, entry):
+        if type(condition) == list:
+            return all(
+                not self._match(sub_condition, entry)
+                for sub_condition in condition
+            )
+        raise QueryError(
+            "$nor has been attributed incorrect argument {!r}".format(
+                condition
+            )
+        )
+
+    def _not(self, condition, entry):
+        return not self._match(condition, entry)
+
+    def _or(self, condition, entry):
+        if type(condition) == list:
+            return any(
+                self._match(sub_condition, entry)
+                for sub_condition in condition
+            )
+        raise QueryError(
+            "$nor has been attributed incorrect argument {!r}".format(
+                condition
+            )
+        )
+
+    ###################
+    # Element operators
+    ###################
 
     def _type(self, condition, entry):
         # TODO: further validation to ensure the right type
@@ -111,7 +158,17 @@ class Query(object):
             18: int   # 64-bit integer
         }
 
+        if condition not in bson_type:
+            raise QueryError(
+                "$type has been used with unknown type {!r}".format(condition))
+
         return type(entry) == bson_type.get(condition)
+
+    _exists = _noop
+
+    ######################
+    # Evaluation operators
+    ######################
 
     def _mod(self, condition, entry):
         return entry % condition[0] == condition[1]
@@ -119,7 +176,6 @@ class Query(object):
     def _regex(self, condition, entry):
         if type(entry) != str:
             return False
-
         try:
             regex = re.match(
                 "\A/(.+)/([imsx]{,4})\Z",
@@ -150,20 +206,44 @@ class Query(object):
                 )
             )
 
+    _options = _text = _where = _not_implemented
+
+    #################
+    # Array operators
+    #################
+
     def _all(self, condition, entry):
         return all(
             self._match(item, entry)
             for item in condition
         )
 
+    def _elemMatch(self, condition, entry):
+        return any(
+            all(
+                self._process_condition(sub_operator, sub_condition, element)
+                for sub_operator, sub_condition in condition.items()
+            )
+            for element in entry
+        )
+
     def _size(self, condition, entry):
+        if type(condition) != int:
+            raise QueryError(
+                "$size has been attributed incorrect argument {!r}".format(
+                    condition
+                )
+            )
+
         if type(entry) == list:
             return len(entry) == condition
+
         return False
 
-    def _noop(self, *args):
-        return True
+    ####################
+    # Comments operators
+    ####################
 
-    _comment = _exists = _noop
+    _comment = _noop
 
 
