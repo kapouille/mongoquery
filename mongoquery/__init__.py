@@ -42,7 +42,7 @@ class Query(object):
             try:
                 return getattr(self, "_" + operator[1:])(condition, entry)
             except AttributeError:
-                raise QueryError("{!r} action isn't supported".format(operator))
+                raise QueryError("{!r} operator isn't supported".format(operator))
         else:
             if type(condition) == dict and "$exists" in condition:
                 if condition["$exists"] != (operator in entry):

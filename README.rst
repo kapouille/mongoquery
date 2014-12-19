@@ -4,8 +4,54 @@ mongoquery
 
 A utility library that provides a `MongoDB <http://www.mongodb.org>`_-like query
 language for querying python collections. It's mainly intended to parse objects
-structured as fundamental types in a similar fashion to what is produced by JSON
-or YAML parsers.
+structured as fundamental types in a similar fashion to what is produced by `JSON`
+or `YAML` parsers.
+
+-----
+Usage
+-----
+
+Example:
+
+.. code-block:: python
+
+    from mongoquery import Query, QueryError
+
+    records = [
+        {"a": 5, "b": 5, "c": None},
+        {"a": 3, "b": None, "c": 8},
+        {"a": None, "b": 3, "c": 9},
+        {"a": 1, "b": 2, "c": 3},
+        {"a": 2, "c": 5},
+        {"a": 3, "b": 2},
+        {"a": 4},
+        {"b": 2, "c": 4},
+        {"b": 2},
+        {"c": 6}
+    ]
+
+    a_is_3 = Query({"a": 3})
+
+    # match a single object
+    matched = a_is_3.match(record[1])
+    assert matched
+
+    matched = a_is_3.match(record[0])
+    assert not matched
+
+    # filter elements
+    filtered = filter(
+        a_is_3.match,
+        records
+    )
+    assert filtered == [records[1], records[5]]
+
+    # incorrect filters raise QueryError
+    try:
+        matched = query({"$foo": 2}).match(record[1])
+    except QueryError:
+        pass  # => "$foo" operator isn't supported
+
 
 ------------
 Query syntax
@@ -66,3 +112,22 @@ and translates it to python using the following rules:
     .. code-block:: python
 
       {"a": {"$exists": True}, "b": None}
+
+
+---------------------------------------------
+Functional differences with MongoDB's queries
+---------------------------------------------
+
+There are a few features that are not supported by ``mongoquery``:
+
+    - Only the ``"/pattern/<options>"`` syntax is supported for ``$regex``. As
+      a consequence, ``$options`` isn't supported.
+    - ``$text`` hasn't been implemented.
+    - Due to the pure python nature of this library, ``$where`` isn't supported.
+    - The `Geospatial` operators ``$geoIntersects``, ``$geoWithin``,
+      ``$nearSphere``, and ``$near`` are not implemented.
+    - Projection operators `$``, ``$elemMatch``, ``$meta``, and ``$slice`` are
+      not implemented (only querying is implemented)
+    - ``$type`` is limited to recognising generic python types, it won't look
+      into recognising the format of the data (for instance, it doesn't check
+      Object ID's format, only that they are strings)
