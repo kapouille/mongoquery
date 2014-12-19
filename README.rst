@@ -119,7 +119,6 @@ Functional differences with MongoDB's queries
 ---------------------------------------------
 
 There are a few features that are not supported by ``mongoquery``:
-
     - Only the ``"/pattern/<options>"`` syntax is supported for ``$regex``. As
       a consequence, ``$options`` isn't supported.
     - ``$text`` hasn't been implemented.
