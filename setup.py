@@ -23,8 +23,9 @@ setup(
     description="A utility library that provides a MongoDB-like query "
                 "language for querying python collections. It's mainly "
                 "intended to parse objects structured as fundamental types in "
-                "a similar fashion to what is produced by `JSON` or `YAML` "
+                "a similar fashion to what is produced by JSON or YAML "
                 "parsers.",
+    long_description=README,
     author_email='olivier.carrere@gmail.com',
     url='http://github.com/kapouille/mongoquery',
     keywords='mongodb query match',
