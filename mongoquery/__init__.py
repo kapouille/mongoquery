@@ -34,8 +34,10 @@ class Query(object):
                 return self._extract(entry[index], path[1:])
             except ValueError:
                 return [self._extract(item, path) for item in entry]
-        elif path[0] in entry:
+        elif type(entry) == dict and path[0] in entry:
             return self._extract(entry[path[0]], path[1:])
+        else:
+            return entry
 
     def _process_condition(self, operator, condition, entry):
         if operator.startswith("$"):
