@@ -28,13 +28,15 @@ class Query(object):
     def _extract(self, entry, path):
         if not path:
             return entry
+        if entry is None:
+            return entry
         if type(entry) == list:
             try:
                 index = int(path[0])
                 return self._extract(entry[index], path[1:])
             except ValueError:
                 return [self._extract(item, path) for item in entry]
-        elif type(entry) == dict and path[0] in entry:
+        elif path[0] in entry:
             return self._extract(entry[path[0]], path[1:])
         else:
             return entry
