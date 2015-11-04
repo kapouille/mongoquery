@@ -340,3 +340,20 @@ class TestQuery(TestCase):
                 collection=inventory
             )
         )
+
+    def test_integer_mapping_key_exists(self):
+        collection = [{1: 'foo'}, {2: 'bar'}]
+        self.assertEqual([], self._query({3: {"$exists": True}}, collection))
+        self.assertEqual(
+            collection[:1], self._query({1: {"$exists": True}}, collection))
+        self.assertEqual(
+            collection[1:], self._query({1: {"$exists": False}}, collection))
+
+    def test_query_integer_keyed(self):
+        collection = [{1: {"banana": 3}}]
+        self.assertEqual([], self._query(
+            {2: {"banana": {"$gt": 2}}}, collection))
+        self.assertEqual(collection, self._query(
+            {1: {"banana": {"$gt": 2}}}, collection))
+        self.assertEqual([], self._query(
+            {1: {"banana": {"$gt": 4}}}, collection))

@@ -1,6 +1,11 @@
 import re
 import types
 
+try:
+    string_type = basestring
+except NameError:
+    string_type = str
+
 
 class QueryError(Exception):
     pass
@@ -42,22 +47,25 @@ class Query(object):
             return entry
 
     def _process_condition(self, operator, condition, entry):
-        if operator.startswith("$"):
-            try:
-                return getattr(self, "_" + operator[1:])(condition, entry)
-            except AttributeError:
-                raise QueryError("{!r} operator isn't supported".format(operator))
+        if type(condition) == dict and "$exists" in condition:
+            if condition["$exists"] != (operator in entry):
+                return False
+            elif tuple(condition.keys()) == ("$exists",):
+                return True
+        if isinstance(operator, string_type):
+            if operator.startswith("$"):
+                try:
+                    return getattr(self, "_" + operator[1:])(condition, entry)
+                except AttributeError:
+                    raise QueryError(
+                        "{!r} operator isn't supported".format(operator))
+            else:
+                extracted_data = self._extract(entry, operator.split("."))
         else:
-            if type(condition) == dict and "$exists" in condition:
-                if condition["$exists"] != (operator in entry):
-                    return False
-
-            extracted_data = self._extract(
-                entry,
-                operator.split(".")
-            )
-
-            return self._match(condition, extracted_data)
+            if operator not in entry:
+                return False
+            extracted_data = entry[operator]
+        return self._match(condition, extracted_data)
 
     ##################
     # Common operators
