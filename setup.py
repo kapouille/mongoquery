@@ -14,8 +14,9 @@ setup(
     version=read_file("VERSION.txt"),
     classifiers=[
         "Programming Language :: Python",
-        "Development Status :: 4 - Beta",
-        "Programming Language :: Python :: 2 :: Only",
+        "Development Status :: 5 - Production/Stable",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: Implementation :: CPython",
         "Topic :: Utilities"
     ],
