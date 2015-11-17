@@ -1,5 +1,6 @@
 import re
 import types
+from collections import Sequence, Mapping
 
 try:
     string_type = basestring
@@ -19,13 +20,13 @@ class Query(object):
         return self._match(self._definition, entry)
 
     def _match(self, condition, entry):
-        if type(condition) == dict:
+        if isinstance(condition, Mapping):
             return all(
                 self._process_condition(sub_operator, sub_condition, entry)
                 for sub_operator, sub_condition in condition.items()
             )
         else:
-            if type(entry) == list:
+            if isinstance(entry, Sequence):
                 return condition in entry
             else:
                 return condition == entry
@@ -35,7 +36,7 @@ class Query(object):
             return entry
         if entry is None:
             return entry
-        if type(entry) == list:
+        if isinstance(entry, Sequence):
             try:
                 index = int(path[0])
                 return self._extract(entry[index], path[1:])
@@ -47,7 +48,7 @@ class Query(object):
             return entry
 
     def _process_condition(self, operator, condition, entry):
-        if type(condition) == dict and "$exists" in condition:
+        if isinstance(condition, Mapping) and "$exists" in condition:
             if condition["$exists"] != (operator in entry):
                 return False
             elif tuple(condition.keys()) == ("$exists",):
@@ -107,7 +108,7 @@ class Query(object):
     ###################
 
     def _and(self, condition, entry):
-        if type(condition) == list:
+        if isinstance(condition, Sequence):
             return all(
                 self._match(sub_condition, entry)
                 for sub_condition in condition
@@ -119,7 +120,7 @@ class Query(object):
         )
 
     def _nor(self, condition, entry):
-        if type(condition) == list:
+        if isinstance(condition, Sequence):
             return all(
                 not self._match(sub_condition, entry)
                 for sub_condition in condition
@@ -134,7 +135,7 @@ class Query(object):
         return not self._match(condition, entry)
 
     def _or(self, condition, entry):
-        if type(condition) == list:
+        if isinstance(condition, Sequence):
             return any(
                 self._match(sub_condition, entry)
                 for sub_condition in condition
@@ -154,17 +155,17 @@ class Query(object):
         # rather than just checking
         bson_type = {
             1: float,
-            2: str,
-            3: dict,
-            4: list,
+            2: string_type,
+            3: Mapping,
+            4: Sequence,
             5: bytearray,
-            7: str,  # object id (uuid)
+            7: string_type,  # object id (uuid)
             8: bool,
-            9: str,  # date (UTC datetime)
+            9: string_type,  # date (UTC datetime)
             10: types.NoneType,
-            11: str,  # regex,
-            13: str,  # Javascript
-            15: str,  # JavaScript (with scope)
+            11: string_type,  # regex,
+            13: string_type,  # Javascript
+            15: string_type,  # JavaScript (with scope)
             16: int,  # 32-bit integer
             17: int,  # Timestamp
             18: int   # 64-bit integer
@@ -174,7 +175,7 @@ class Query(object):
             raise QueryError(
                 "$type has been used with unknown type {!r}".format(condition))
 
-        return type(entry) == bson_type.get(condition)
+        return isinstance(entry, bson_type.get(condition))
 
     _exists = _noop
 
@@ -186,7 +187,7 @@ class Query(object):
         return entry % condition[0] == condition[1]
 
     def _regex(self, condition, entry):
-        if type(entry) != str:
+        if not isinstance(entry, string_type):
             return False
         try:
             regex = re.match(
@@ -240,14 +241,14 @@ class Query(object):
         )
 
     def _size(self, condition, entry):
-        if type(condition) != int:
+        if not isinstance(condition, int):
             raise QueryError(
                 "$size has been attributed incorrect argument {!r}".format(
                     condition
                 )
             )
 
-        if type(entry) == list:
+        if isinstance(entry, Sequence) and not isinstance(entry, string_type):
             return len(entry) == condition
 
         return False
