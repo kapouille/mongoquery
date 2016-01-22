@@ -357,3 +357,12 @@ class TestQuery(TestCase):
             {1: {"banana": {"$gt": 2}}}, collection))
         self.assertEqual([], self._query(
             {1: {"banana": {"$gt": 4}}}, collection))
+
+    def test_query_subfield_not_found(self):
+        collection = [
+            {"turtle": True}
+        ]
+
+        self.assertEqual(
+            [], self._query({"turtle": {"neck": True}}, collection)
+        )

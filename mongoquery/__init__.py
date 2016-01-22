@@ -12,6 +12,10 @@ class QueryError(Exception):
     pass
 
 
+class _Undefined(object):
+    pass
+
+
 class Query(object):
     def __init__(self, definition):
         self._definition = definition
@@ -42,10 +46,10 @@ class Query(object):
                 return self._extract(entry[index], path[1:])
             except ValueError:
                 return [self._extract(item, path) for item in entry]
-        elif path[0] in entry:
+        elif isinstance(entry, Mapping) and path[0] in entry:
             return self._extract(entry[path[0]], path[1:])
         else:
-            return entry
+            return _Undefined()
 
     def _process_condition(self, operator, condition, entry):
         if isinstance(condition, Mapping) and "$exists" in condition:
