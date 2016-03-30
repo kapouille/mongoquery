@@ -1,5 +1,4 @@
 import re
-import types
 from collections import Sequence, Mapping
 
 try:
@@ -40,7 +39,7 @@ class Query(object):
             return entry
         if entry is None:
             return entry
-        if isinstance(entry, Sequence):
+        if isinstance(entry, Sequence) and not isinstance(entry, string_type):
             try:
                 index = int(path[0])
                 return self._extract(entry[index], path[1:])
@@ -166,7 +165,7 @@ class Query(object):
             7: string_type,  # object id (uuid)
             8: bool,
             9: string_type,  # date (UTC datetime)
-            10: types.NoneType,
+            10: type(None),
             11: string_type,  # regex,
             13: string_type,  # Javascript
             15: string_type,  # JavaScript (with scope)
@@ -262,5 +261,3 @@ class Query(object):
     ####################
 
     _comment = _noop
-
-
