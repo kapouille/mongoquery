@@ -1,4 +1,4 @@
-from unittest2 import TestCase
+from unittest import TestCase
 from mongoquery import Query
 
 _FOOD = {
@@ -30,15 +30,14 @@ _ALL = [_FOOD, _FRUIT]
 
 
 class TestQuery(TestCase):
-
     def setUp(self):
         self.maxDiff = None
 
     def _query(self, definition, collection=_ALL):
-        return filter(
+        return list(filter(
             Query(definition).match,
             collection
-        )
+        ))
 
     def test_simple_lookup(self):
         self.assertEqual([_FRUIT], self._query({"type": "fruit"}))
@@ -366,3 +365,8 @@ class TestQuery(TestCase):
         self.assertEqual(
             [], self._query({"turtle": {"neck": True}}, collection)
         )
+
+    def test_bad_query_doesnt_infinitely_recurse(self):
+        collection = [{"turtles": "swim"}]
+        self.assertEqual(
+            [], self._query({"turtles": {"value": "swim"}}, collection))
