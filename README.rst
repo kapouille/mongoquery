@@ -2,6 +2,9 @@
 mongoquery
 ==========
 
+.. image:: https://travis-ci.org/kapouille/mongoquery.svg?branch=master
+    :target: https://travis-ci.org/kapouille/mongoquery
+
 A utility library that provides a `MongoDB <http://www.mongodb.org>`_-like query
 language for querying python collections. It's mainly intended to parse objects
 structured as fundamental types in a similar fashion to what is produced by `JSON`
