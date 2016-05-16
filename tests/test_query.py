@@ -95,6 +95,21 @@ class TestQuery(TestCase):
 
         self.assertEqual(
             _ALL,
+            self._query({"qty": {"$type": 'int'}})
+        )
+
+        self.assertEqual(
+            _ALL,
+            self._query({"qty": {"$type": 'number'}})
+        )
+
+        self.assertEqual(
+            [],
+            self._query({"qty": {"$type": 'string'}})
+        )
+
+        self.assertEqual(
+            _ALL,
             self._query({"qty": {"$exists": True}})
         )
 

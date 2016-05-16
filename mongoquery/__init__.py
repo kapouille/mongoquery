@@ -173,6 +173,32 @@ class Query(object):
             17: int,  # Timestamp
             18: int   # 64-bit integer
         }
+        bson_alias = {
+            "double": 1,
+            "string": 2,
+            "object": 3,
+            "array": 4,
+            "binData": 5,
+            "objectId": 7,
+            "bool": 8,
+            "date": 9,
+            "null": 10,
+            "regex": 11,
+            "javascript": 13,
+            "javascriptWithScope": 15,
+            "int": 16,
+            "timestamp": 17,
+            "long": 18,
+        }
+
+        if condition == "number":
+            return any([
+                isinstance(entry, bson_type[bson_alias[alias]])
+                for alias in ["double", "int", "long"]
+                ])
+
+        # resolves bson alias, or keeps original condition value
+        condition = bson_alias.get(condition, condition)
 
         if condition not in bson_type:
             raise QueryError(
