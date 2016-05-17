@@ -15,6 +15,10 @@ class _Undefined(object):
     pass
 
 
+def is_non_string_sequence(entry):
+    return isinstance(entry, Sequence) and not isinstance(entry, string_type)
+
+
 class Query(object):
     def __init__(self, definition):
         self._definition = definition
@@ -29,7 +33,7 @@ class Query(object):
                 for sub_operator, sub_condition in condition.items()
             )
         else:
-            if isinstance(entry, Sequence):
+            if is_non_string_sequence(entry):
                 return condition in entry
             else:
                 return condition == entry
@@ -39,7 +43,7 @@ class Query(object):
             return entry
         if entry is None:
             return entry
-        if isinstance(entry, Sequence) and not isinstance(entry, string_type):
+        if is_non_string_sequence(entry):
             try:
                 index = int(path[0])
                 return self._extract(entry[index], path[1:])
@@ -277,7 +281,7 @@ class Query(object):
                 )
             )
 
-        if isinstance(entry, Sequence) and not isinstance(entry, string_type):
+        if is_non_string_sequence(entry):
             return len(entry) == condition
 
         return False

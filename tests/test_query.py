@@ -104,6 +104,11 @@ class TestQuery(TestCase):
         )
 
         self.assertEqual(
+            _ALL,
+            self._query({"item": {"$type": 'string'}})
+        )
+
+        self.assertEqual(
             [],
             self._query({"qty": {"$type": 'string'}})
         )
@@ -385,3 +390,8 @@ class TestQuery(TestCase):
         collection = [{"turtles": "swim"}]
         self.assertEqual(
             [], self._query({"turtles": {"value": "swim"}}, collection))
+
+    def test_query_string(self):
+        collection = [{"a": "5"}, {"a": "567"}]
+        self.assertEqual([], self._query({"a": 5}, collection))
+        self.assertEqual([{"a": "5"}], self._query({"a": "5"}, collection))
