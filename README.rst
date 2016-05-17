@@ -8,7 +8,8 @@ mongoquery
 A utility library that provides a `MongoDB <http://www.mongodb.org>`_-like query
 language for querying python collections. It's mainly intended to parse objects
 structured as fundamental types in a similar fashion to what is produced by `JSON`
-or `YAML` parsers.
+or `YAML` parsers. It follows the specification of queries for MongoDB version 3.2.
+
 
 -----
 Usage
