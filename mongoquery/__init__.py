@@ -233,24 +233,22 @@ class Query(object):
                 "{!r} is not a regular expression "
                 "and should be a string".format(condition))
 
+        flags = 0
         if regex:
-            flags = 0
             options = regex.group(2)
             for option in options:
                 flags |= getattr(re, option.upper())
-            try:
-                match = re.search(regex.group(1), entry, flags=flags)
-            except Exception as error:
-                raise QueryError(
-                    "{!r} failed to execute with error {!r}".format(
-                        condition, error))
-            return bool(match)
+            exp = regex.group(1)
         else:
+            exp = condition
+
+        try:
+            match = re.search(exp, entry, flags=flags)
+        except Exception as error:
             raise QueryError(
-                "{!r} is not using a known regular expression syntax".format(
-                    condition
-                )
-            )
+                "{!r} failed to execute with error {!r}".format(
+                    condition, error))
+        return bool(match)
 
     _options = _text = _where = _not_implemented
 
