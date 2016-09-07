@@ -192,6 +192,11 @@ class TestQuery(TestCase):
 
         self.assertEqual(
             products[:2],
+            self._query({"sku": {"$regex": "^abc"}}, collection=products)
+        )
+
+        self.assertEqual(
+            products[:2],
             self._query(
                 {"description": {"$regex": "/^S/m"}}, collection=products)
         )
