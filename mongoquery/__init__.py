@@ -55,11 +55,6 @@ class Query(object):
             return _Undefined()
 
     def _process_condition(self, operator, condition, entry):
-        if isinstance(condition, Mapping) and "$exists" in condition:
-            if condition["$exists"] != (operator in entry):
-                return False
-            elif tuple(condition.keys()) == ("$exists",):
-                return True
         if isinstance(operator, string_type):
             if operator.startswith("$"):
                 try:
@@ -210,11 +205,14 @@ class Query(object):
 
         return isinstance(entry, bson_type.get(condition))
 
-    _exists = _noop
-
     ######################
     # Evaluation operators
     ######################
+
+    def _exists(self, condition, entry):
+        if not isinstance(entry, _Undefined):
+            return condition
+        return not condition
 
     def _mod(self, condition, entry):
         return entry % condition[0] == condition[1]
