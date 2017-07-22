@@ -232,7 +232,7 @@ class Query(object):
 
         return isinstance(entry, bson_type.get(condition))
 
-    exists = _noop
+    _exists = _noop
 
     ######################
     # Evaluation operators
