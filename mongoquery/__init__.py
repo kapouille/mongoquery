@@ -64,6 +64,8 @@ class Query(object):
         for k in keys:
             if k.endswith(']'):
                 k = int(k[:-1])
+            if type(obj) is str:
+                raise KeyError("Invalid key '{}' in JSON path".format(k))
             obj = obj[k]
         return obj
 
