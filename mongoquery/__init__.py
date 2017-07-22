@@ -232,11 +232,11 @@ class Query(object):
 
         return isinstance(entry, bson_type.get(condition))
 
+    exists = _noop
+
     ######################
     # Evaluation operators
     ######################
-
-    exists = _noop
 
     def _mod(self, condition, entry):
         return entry % condition[0] == condition[1]
