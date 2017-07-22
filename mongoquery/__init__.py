@@ -76,7 +76,7 @@ class Query(object):
 
     def _process_condition(self, operator, condition, entry):
         if isinstance(condition, Mapping) and "$exists" in condition:
-            if type(operator) is str and operator.find('.') != -1:
+            if type(operator) is str and (operator.find('.') != -1 or operator.find('[') != -1):
                 return self._path_exists(operator, condition['$exists'], entry)
             elif condition["$exists"] != (operator in entry):
                 return False
