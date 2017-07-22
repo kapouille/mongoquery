@@ -238,18 +238,6 @@ class Query(object):
 
     exists = _noop
 
-
-        
-    # def _exists(self, condition, entry):
-    #     if type(entry) is list:
-    #         for e in entry:
-    #             if not isinstance(entry, _Undefined):
-    #                 return condition
-    #             return not condition
-    #     if not isinstance(entry, _Undefined):
-    #         return condition
-    #     return not condition
-
     def _mod(self, condition, entry):
         return entry % condition[0] == condition[1]
 
