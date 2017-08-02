@@ -54,9 +54,33 @@ class Query(object):
         else:
             return _Undefined()
 
+    def _get_value_at_path(self, obj, path):
+        is_dotted = True if path.find(".") != -1 else False
+        is_indexed = True if path.find("[") != -1 else False
+        if is_indexed:
+            path = path.replace("[", ".")
+            is_dotted = True
+        keys = " ".join(path.split(".")).split() if is_dotted else [ path ]
+        for k in keys:
+            if k.endswith(']'):
+                k = int(k[:-1])
+            if type(obj) is str:
+                raise KeyError("Invalid key '{}' in JSON path".format(k))
+            obj = obj[k]
+        return obj
+
+    def _path_exists(self, operator, condition, entry):
+        try:
+            self._get_value_at_path(entry, operator)
+        except:
+            return not condition
+        return condition
+
     def _process_condition(self, operator, condition, entry):
         if isinstance(condition, Mapping) and "$exists" in condition:
-            if condition["$exists"] != (operator in entry):
+            if type(operator) is str and (operator.find('.') != -1 or operator.find('[') != -1):
+                return self._path_exists(operator, condition['$exists'], entry)
+            elif condition["$exists"] != (operator in entry):
                 return False
             elif tuple(condition.keys()) == ("$exists",):
                 return True
