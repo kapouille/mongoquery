@@ -95,7 +95,7 @@ class Query(object):
                 try:
                     extracted_data = self._extract(entry, operator.split("."))
                 except IndexError:
-                    return False
+                    extracted_data = _Undefined()
         else:
             if operator not in entry:
                 return False
