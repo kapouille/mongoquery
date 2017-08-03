@@ -84,13 +84,12 @@ class Query(object):
                 return True
         if isinstance(operator, string_type):
             if operator.startswith("$"):
+                operator = "_" + operator[1:]
                 try:
-                    return getattr(self, "_" + operator[1:])(condition, entry)
+                    return getattr(self, operator)(condition, entry)
                 except AttributeError:
                     raise QueryError(
                         "{!r} operator isn't supported".format(operator))
-                except TypeError as e:
-                    return False
             else:
                 try:
                     extracted_data = self._extract(entry, operator.split("."))
@@ -117,25 +116,43 @@ class Query(object):
     ######################
 
     def _gt(self, condition, entry):
-        return entry > condition
+        try:
+            return entry > condition
+        except TypeError:
+            return False
 
     def _gte(self, condition, entry):
-        return entry >= condition
+        try:
+            return entry >= condition
+        except TypeError:
+            return False
 
     def _in(self, condition, entry):
-        return entry in condition
+        try:
+            return entry in condition
+        except TypeError:
+            return False
 
     def _lt(self, condition, entry):
-        return entry < condition
+        try:
+            return entry < condition
+        except TypeError:
+            return False
 
     def _lte(self, condition, entry):
-        return entry <= condition
+        try:
+            return entry <= condition
+        except TypeError:
+            return False
 
     def _ne(self, condition, entry):
         return entry != condition
-
+            
     def _nin(self, condition, entry):
-        return entry not in condition
+        try:
+            return entry not in condition
+        except TypeError:
+            return True
 
     ###################
     # Logical operators
