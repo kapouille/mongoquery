@@ -89,10 +89,13 @@ class Query(object):
                 except AttributeError:
                     raise QueryError(
                         "{!r} operator isn't supported".format(operator))
-                except TypeError:
+                except TypeError as e:
                     return False
             else:
-                extracted_data = self._extract(entry, operator.split("."))
+                try:
+                    extracted_data = self._extract(entry, operator.split("."))
+                except IndexError:
+                    return False
         else:
             if operator not in entry:
                 return False
