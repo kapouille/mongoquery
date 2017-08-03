@@ -61,10 +61,11 @@ class Query(object):
             keys_lists = [ path ]
         for i, k in enumerate(keys_lists):
             if isinstance(entry, Sequence) and not k.isdigit():
-              for e in entry:
-                  operator = '.'.join(keys_lists[i:])
-                  if self._path_exists(operator, condition, e) == condition:
-                      return condition
+                for e in entry:
+                    operator = '.'.join(keys_lists[i:])
+                    if self._path_exists(operator, condition, e) == condition:
+                        return condition
+                return not condition
             elif isinstance(entry, Sequence):
                 k = int(k)
             try:
