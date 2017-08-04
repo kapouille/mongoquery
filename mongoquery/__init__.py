@@ -84,9 +84,8 @@ class Query(object):
                 return True
         if isinstance(operator, string_type):
             if operator.startswith("$"):
-                operator = "_" + operator[1:]
                 try:
-                    return getattr(self, operator)(condition, entry)
+                    return getattr(self, "_" + operator[1:])(condition, entry)
                 except AttributeError:
                     raise QueryError(
                         "{!r} operator isn't supported".format(operator))
