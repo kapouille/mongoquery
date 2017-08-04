@@ -146,7 +146,7 @@ class Query(object):
 
     def _ne(self, condition, entry):
         return entry != condition
-            
+
     def _nin(self, condition, entry):
         try:
             return entry not in condition
