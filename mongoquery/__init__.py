@@ -55,10 +55,7 @@ class Query(object):
             return _Undefined()
 
     def _path_exists(self, operator, condition, entry):
-        if type(operator) is str:
-            keys_lists = list(operator.split('.'))
-        else:
-            keys_lists = [ path ]
+        keys_lists = list(operator.split('.'))
         for i, k in enumerate(keys_lists):
             if isinstance(entry, Sequence) and not k.isdigit():
                 for e in entry:
@@ -76,7 +73,7 @@ class Query(object):
 
     def _process_condition(self, operator, condition, entry):
         if isinstance(condition, Mapping) and "$exists" in condition:
-            if type(operator) is str and operator.find('.') != -1:
+            if isinstance(operator, basestring) and operator.find('.') != -1:
                 return self._path_exists(operator, condition['$exists'], entry)
             elif condition["$exists"] != (operator in entry):
                 return False
@@ -146,7 +143,7 @@ class Query(object):
 
     def _ne(self, condition, entry):
         return entry != condition
-            
+
     def _nin(self, condition, entry):
         try:
             return entry not in condition
