@@ -1,5 +1,6 @@
 import re
 from collections import Sequence, Mapping
+from six import string_types
 
 try:
     string_type = basestring
@@ -73,7 +74,7 @@ class Query(object):
 
     def _process_condition(self, operator, condition, entry):
         if isinstance(condition, Mapping) and "$exists" in condition:
-            if isinstance(operator, basestring) and operator.find('.') != -1:
+            if isinstance(operator, string_types) and operator.find('.') != -1:
                 return self._path_exists(operator, condition['$exists'], entry)
             elif condition["$exists"] != (operator in entry):
                 return False
