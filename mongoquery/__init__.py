@@ -56,11 +56,11 @@ class Query(object):
             return _Undefined()
 
     def _path_exists(self, operator, condition, entry):
-        keys_lists = list(operator.split('.'))
-        for i, k in enumerate(keys_lists):
+        keys_list = list(operator.split('.'))
+        for i, k in enumerate(keys_list):
             if isinstance(entry, Sequence) and not k.isdigit():
                 for e in entry:
-                    operator = '.'.join(keys_lists[i:])
+                    operator = '.'.join(keys_list[i:])
                     if self._path_exists(operator, condition, e) == condition:
                         return condition
                 return not condition
