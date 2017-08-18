@@ -304,6 +304,8 @@ class Query(object):
         )
 
     def _elemMatch(self, condition, entry):
+        if not isinstance(entry, Sequence):
+            return False
         return any(
             all(
                 self._process_condition(sub_operator, sub_condition, element)
