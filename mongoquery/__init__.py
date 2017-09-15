@@ -1,5 +1,6 @@
 import re
 from collections import Sequence, Mapping
+from six import string_types
 
 try:
     string_type = basestring
@@ -54,31 +55,26 @@ class Query(object):
         else:
             return _Undefined()
 
-    def _get_value_at_path(self, obj, path):
-        is_dotted = True if path.find(".") != -1 else False
-        is_indexed = True if path.find("[") != -1 else False
-        if is_indexed:
-            path = path.replace("[", ".")
-            is_dotted = True
-        keys = " ".join(path.split(".")).split() if is_dotted else [ path ]
-        for k in keys:
-            if k.endswith(']'):
-                k = int(k[:-1])
-            if type(obj) is str:
-                raise KeyError("Invalid key '{}' in JSON path".format(k))
-            obj = obj[k]
-        return obj
-
     def _path_exists(self, operator, condition, entry):
-        try:
-            self._get_value_at_path(entry, operator)
-        except:
-            return not condition
+        keys_list = list(operator.split('.'))
+        for i, k in enumerate(keys_list):
+            if isinstance(entry, Sequence) and not k.isdigit():
+                for e in entry:
+                    operator = '.'.join(keys_list[i:])
+                    if self._path_exists(operator, condition, e) == condition:
+                        return condition
+                return not condition
+            elif isinstance(entry, Sequence):
+                k = int(k)
+            try:
+                entry = entry[k]
+            except:
+                return not condition
         return condition
 
     def _process_condition(self, operator, condition, entry):
         if isinstance(condition, Mapping) and "$exists" in condition:
-            if type(operator) is str and (operator.find('.') != -1 or operator.find('[') != -1):
+            if isinstance(operator, string_types) and operator.find('.') != -1:
                 return self._path_exists(operator, condition['$exists'], entry)
             elif condition["$exists"] != (operator in entry):
                 return False
@@ -92,7 +88,10 @@ class Query(object):
                     raise QueryError(
                         "{!r} operator isn't supported".format(operator))
             else:
-                extracted_data = self._extract(entry, operator.split("."))
+                try:
+                    extracted_data = self._extract(entry, operator.split("."))
+                except IndexError:
+                    extracted_data = _Undefined()
         else:
             if operator not in entry:
                 return False
@@ -114,25 +113,43 @@ class Query(object):
     ######################
 
     def _gt(self, condition, entry):
-        return entry > condition
+        try:
+            return entry > condition
+        except TypeError:
+            return False
 
     def _gte(self, condition, entry):
-        return entry >= condition
+        try:
+            return entry >= condition
+        except TypeError:
+            return False
 
     def _in(self, condition, entry):
-        return entry in condition
+        try:
+            return entry in condition
+        except TypeError:
+            return False
 
     def _lt(self, condition, entry):
-        return entry < condition
+        try:
+            return entry < condition
+        except TypeError:
+            return False
 
     def _lte(self, condition, entry):
-        return entry <= condition
+        try:
+            return entry <= condition
+        except TypeError:
+            return False
 
     def _ne(self, condition, entry):
         return entry != condition
 
     def _nin(self, condition, entry):
-        return entry not in condition
+        try:
+            return entry not in condition
+        except TypeError:
+            return True
 
     ###################
     # Logical operators
@@ -287,6 +304,8 @@ class Query(object):
         )
 
     def _elemMatch(self, condition, entry):
+        if not isinstance(entry, Sequence):
+            return False
         return any(
             all(
                 self._process_condition(sub_operator, sub_condition, element)
