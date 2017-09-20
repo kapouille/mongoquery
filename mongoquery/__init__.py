@@ -30,13 +30,13 @@ def is_non_string_sequence(entry):
 
 
 class Query(object):
-    """ This class is used to match an object against a MongoDB-like query """
+    """ The Query class is used to match an object against a MongoDB-like query """
     # pylint: disable=too-few-public-methods
     def __init__(self, definition):
         self._definition = definition
 
     def match(self, entry):
-        """ Matches the entry object against the query specified for instanciation """
+        """ Matches the entry object against the query specified at instanciation """
         return self._match(self._definition, entry)
 
     def _match(self, condition, entry):
