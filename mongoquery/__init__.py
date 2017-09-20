@@ -36,7 +36,7 @@ class Query(object):
         self._definition = definition
 
     def match(self, entry):
-        """ Matches the entry object against the query specified at instanciation """
+        """ Matches the entry object against the query specified on instanciation """
         return self._match(self._definition, entry)
 
     def _match(self, condition, entry):
