@@ -1,7 +1,13 @@
+"""
+mongoquery provides a straightforward API to match Python objects against
+MongoDB Query Language queries.
+"""
+
 import re
 from collections import Sequence, Mapping
 from six import string_types
 
+# pylint: disable=invalid-name
 try:
     string_type = basestring
 except NameError:
@@ -9,22 +15,28 @@ except NameError:
 
 
 class QueryError(Exception):
+    """ Dummy class """
     pass
 
 
 class _Undefined(object):
+    # pylint: disable=too-few-public-methods
     pass
 
 
 def is_non_string_sequence(entry):
+    """ Returns True if entry is a Python sequence iterable, and not a string """
     return isinstance(entry, Sequence) and not isinstance(entry, string_type)
 
 
 class Query(object):
+    """ This class is used to match an object against a MongoDB-like query """
+    # pylint: disable=too-few-public-methods
     def __init__(self, definition):
         self._definition = definition
 
     def match(self, entry):
+        """ Matches the entry object against the query specified for instanciation """
         return self._match(self._definition, entry)
 
     def _match(self, condition, entry):
@@ -33,11 +45,9 @@ class Query(object):
                 self._process_condition(sub_operator, sub_condition, entry)
                 for sub_operator, sub_condition in condition.items()
             )
-        else:
-            if is_non_string_sequence(entry):
-                return condition in entry
-            else:
-                return condition == entry
+        if is_non_string_sequence(entry):
+            return condition in entry
+        return condition == entry
 
     def _extract(self, entry, path):
         if not path:
@@ -59,16 +69,16 @@ class Query(object):
         keys_list = list(operator.split('.'))
         for i, k in enumerate(keys_list):
             if isinstance(entry, Sequence) and not k.isdigit():
-                for e in entry:
+                for elem in entry:
                     operator = '.'.join(keys_list[i:])
-                    if self._path_exists(operator, condition, e) == condition:
+                    if self._path_exists(operator, condition, elem) == condition:
                         return condition
                 return not condition
             elif isinstance(entry, Sequence):
                 k = int(k)
             try:
                 entry = entry[k]
-            except:
+            except (TypeError, IndexError):
                 return not condition
         return condition
 
@@ -102,54 +112,64 @@ class Query(object):
     # Common operators
     ##################
 
-    def _not_implemented(self, *args):
+    @staticmethod
+    def _not_implemented(*_):
         raise NotImplementedError
 
-    def _noop(self, *args):
+    @staticmethod
+    def _noop(*_):
         return True
 
     ######################
     # Comparison operators
     ######################
 
-    def _gt(self, condition, entry):
+    @staticmethod
+    def _gt(condition, entry):
         try:
             return entry > condition
         except TypeError:
             return False
 
-    def _gte(self, condition, entry):
+    @staticmethod
+    def _gte(condition, entry):
         try:
             return entry >= condition
         except TypeError:
             return False
 
-    def _in(self, condition, entry):
-        try:
-            return entry in condition
-        except TypeError:
+    @staticmethod
+    def _in(condition, entry):
+        if is_non_string_sequence(condition):
+            for elem in condition:
+                if is_non_string_sequence(entry) and elem in entry:
+                    return True
+                elif not is_non_string_sequence(entry) and elem == entry:
+                    return True
             return False
+        else:
+            raise TypeError("condition must be a list")
 
-    def _lt(self, condition, entry):
+    @staticmethod
+    def _lt(condition, entry):
         try:
             return entry < condition
         except TypeError:
             return False
 
-    def _lte(self, condition, entry):
+    @staticmethod
+    def _lte(condition, entry):
         try:
             return entry <= condition
         except TypeError:
             return False
 
-    def _ne(self, condition, entry):
+    @staticmethod
+    def _ne(condition, entry):
         return entry != condition
 
     def _nin(self, condition, entry):
-        try:
-            return entry not in condition
-        except TypeError:
-            return True
+        return not self._in(condition, entry)
 
     ###################
     # Logical operators
@@ -198,7 +218,8 @@ class Query(object):
     # Element operators
     ###################
 
-    def _type(self, condition, entry):
+    @staticmethod
+    def _type(condition, entry):
         # TODO: further validation to ensure the right type
         # rather than just checking
         bson_type = {
@@ -240,7 +261,7 @@ class Query(object):
             return any([
                 isinstance(entry, bson_type[bson_alias[alias]])
                 for alias in ["double", "int", "long"]
-                ])
+            ])
 
         # resolves bson alias, or keeps original condition value
         condition = bson_alias.get(condition, condition)
@@ -257,15 +278,17 @@ class Query(object):
     # Evaluation operators
     ######################
 
-    def _mod(self, condition, entry):
+    @staticmethod
+    def _mod(condition, entry):
         return entry % condition[0] == condition[1]
 
-    def _regex(self, condition, entry):
+    @staticmethod
+    def _regex(condition, entry):
         if not isinstance(entry, string_type):
             return False
         try:
             regex = re.match(
-                "\A/(.+)/([imsx]{,4})\Z",
+                r"\A/(.+)/([imsx]{,4})\Z",
                 condition,
                 flags=re.DOTALL
             )
@@ -304,6 +327,7 @@ class Query(object):
         )
 
     def _elemMatch(self, condition, entry):
+        # pylint: disable=invalid-name
         if not isinstance(entry, Sequence):
             return False
         return any(
@@ -314,7 +338,8 @@ class Query(object):
             for element in entry
         )
 
-    def _size(self, condition, entry):
+    @staticmethod
+    def _size(condition, entry):
         if not isinstance(condition, int):
             raise QueryError(
                 "$size has been attributed incorrect argument {!r}".format(
