@@ -15,7 +15,7 @@ except NameError:
 
 
 class QueryError(Exception):
-    """ Dummy class """
+    """ Query error exception """
     pass
 
 
