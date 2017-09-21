@@ -78,7 +78,7 @@ class Query(object):
                 k = int(k)
             try:
                 entry = entry[k]
-            except (TypeError, IndexError):
+            except (TypeError, IndexError, KeyError):
                 return not condition
         return condition
 
