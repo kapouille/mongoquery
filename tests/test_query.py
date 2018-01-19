@@ -49,6 +49,11 @@ class TestQuery(TestCase):
     def test_comparison(self):
         self.assertEqual(
             [_FOOD],
+            self._query({"qty": {"$eq": 25}})
+        )
+
+        self.assertEqual(
+            [_FOOD],
             self._query({"qty": {"$gt": 20}})
         )
 

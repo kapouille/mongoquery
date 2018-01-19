@@ -125,6 +125,13 @@ class Query(object):
     ######################
 
     @staticmethod
+    def _eq(condition, entry):
+        try:
+            return entry == condition
+        except TypeError:
+            return False
+
+    @staticmethod
     def _gt(condition, entry):
         try:
             return entry > condition
