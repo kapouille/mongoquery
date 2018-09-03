@@ -26,6 +26,7 @@ setup(
                 "intended to parse objects structured as fundamental types in "
                 "a similar fashion to what is produced by JSON or YAML "
                 "parsers.",
+    install_requires=['six'],
     long_description=README,
     author_email='olivier.carrere@gmail.com',
     url='http://github.com/kapouille/mongoquery',
