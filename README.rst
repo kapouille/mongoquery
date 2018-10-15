@@ -37,10 +37,10 @@ Example:
     a_is_3 = Query({"a": 3})
 
     # match a single object
-    matched = a_is_3.match(record[1])
+    matched = a_is_3.match(records[1])
     assert matched
 
-    matched = a_is_3.match(record[0])
+    matched = a_is_3.match(records[0])
     assert not matched
 
     # filter elements
@@ -52,7 +52,7 @@ Example:
 
     # incorrect filters raise QueryError
     try:
-        matched = query({"$foo": 2}).match(record[1])
+        matched = query({"$foo": 2}).match(records[1])
     except QueryError:
         pass  # => "$foo" operator isn't supported
 
