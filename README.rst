@@ -125,7 +125,9 @@ Functional differences with MongoDB's queries
 
 There are a few features that are not supported by ``mongoquery``:
     - Only the ``"/pattern/<options>"`` syntax is supported for ``$regex``. As
-      a consequence, ``$options`` isn't supported.
+      a consequence, ``$options`` isn't supported. Alternatively you can
+      compile a regex using ``re.compile`` and supply options as parameters, and pass
+      the ``re.Pattern`` object as the value of ``$regex``.
     - ``$text`` hasn't been implemented.
     - Due to the pure python nature of this library, ``$where`` isn't supported.
     - The `Geospatial` operators ``$geoIntersects``, ``$geoWithin``,

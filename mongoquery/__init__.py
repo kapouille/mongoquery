@@ -14,6 +14,14 @@ except NameError:
     string_type = str
 
 
+# Pythons >= 3.7 have a nice Pattern type we can use. Olders versions
+# require a different type.
+try:
+    regex_type = re.Pattern
+except AttributeError:
+    regex_type = re._pattern_type
+
+
 class QueryError(Exception):
     """ Query error exception """
     pass
@@ -239,7 +247,7 @@ class Query(object):
             8: bool,
             9: string_type,  # date (UTC datetime)
             10: type(None),
-            11: string_type,  # regex,
+            11: regex_type,  # regex,
             13: string_type,  # Javascript
             15: string_type,  # JavaScript (with scope)
             16: int,  # 32-bit integer
@@ -293,6 +301,10 @@ class Query(object):
     def _regex(condition, entry):
         if not isinstance(entry, string_type):
             return False
+        # If the caller has supplied a compiled regex, assume options are already
+        # included.
+        if isinstance(condition, regex_type):
+            return bool(re.search(condition, entry))
         try:
             regex = re.match(
                 r"\A/(.+)/([imsx]{,4})\Z",
