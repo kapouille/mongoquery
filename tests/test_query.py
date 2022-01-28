@@ -1,3 +1,4 @@
+import re
 from unittest import TestCase
 from mongoquery import Query
 
@@ -198,6 +199,11 @@ class TestQuery(TestCase):
         self.assertEqual(
             products[:2],
             self._query({"sku": {"$regex": "/^ABC/i"}}, collection=products)
+        )
+        self.assertEqual(
+            products[:2],
+            self._query({"sku": {"$regex": re.compile("^ABC", re.IGNORECASE)}},
+                        collection=products)
         )
 
         self.assertEqual(
