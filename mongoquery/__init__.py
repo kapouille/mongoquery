@@ -224,7 +224,7 @@ class Query(object):
                 for sub_condition in condition
             )
         raise QueryError(
-            "$nor has been attributed incorrect argument {!r}".format(
+            "$or has been attributed incorrect argument {!r}".format(
                 condition
             )
         )
