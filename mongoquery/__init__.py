@@ -53,9 +53,12 @@ class Query(object):
                 self._process_condition(sub_operator, sub_condition, entry)
                 for sub_operator, sub_condition in condition.items()
             )
+        if condition == entry:
+            return True
+
         if is_non_string_sequence(entry):
             return condition in entry
-        return condition == entry
+        return False
 
     def _extract(self, entry, path):
         if not path:

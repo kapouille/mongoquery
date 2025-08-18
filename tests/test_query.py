@@ -67,7 +67,7 @@ class TestQuery(TestCase):
             _ALL,
             self._query({"ratings": {"$in": [5, 6]}})
         )
-        
+
         self.assertEqual(
             [_FRUIT],
             self._query({"qty": {"$in": [10, 42]}})
@@ -266,6 +266,13 @@ class TestQuery(TestCase):
                         "by": 'shipping'
                     }
                 }
+            })
+        )
+
+        self.assertEqual(
+            [_FOOD],
+            self._query({
+                "ratings": [5, 8, 9]
             })
         )
 
