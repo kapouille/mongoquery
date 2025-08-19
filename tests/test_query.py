@@ -1,5 +1,6 @@
 import re
 from unittest import TestCase
+
 from mongoquery import Query
 
 _FOOD = {
@@ -273,6 +274,17 @@ class TestQuery(TestCase):
             [_FOOD],
             self._query({
                 "ratings": [5, 8, 9]
+            })
+        )
+
+        self.assertEqual(
+            [_FOOD],
+            self._query({
+                "ratings": {
+                    "$size": {
+                        "$gt" : 2
+                    }
+                }
             })
         )
 

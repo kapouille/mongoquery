@@ -362,6 +362,9 @@ class Query(object):
 
     @staticmethod
     def _size(condition, entry):
+        if isinstance(condition, Mapping):
+            return Query(condition).match(len(entry))
+
         if not isinstance(condition, int):
             raise QueryError(
                 "$size has been attributed incorrect argument {!r}".format(
