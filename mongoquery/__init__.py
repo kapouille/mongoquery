@@ -53,9 +53,12 @@ class Query(object):
                 self._process_condition(sub_operator, sub_condition, entry)
                 for sub_operator, sub_condition in condition.items()
             )
+        if condition == entry:
+            return True
+
         if is_non_string_sequence(entry):
             return condition in entry
-        return condition == entry
+        return False
 
     def _extract(self, entry, path):
         if not path:
@@ -359,6 +362,9 @@ class Query(object):
 
     @staticmethod
     def _size(condition, entry):
+        if isinstance(condition, Mapping):
+            return Query(condition).match(len(entry))
+
         if not isinstance(condition, int):
             raise QueryError(
                 "$size has been attributed incorrect argument {!r}".format(
